@@ -34,7 +34,9 @@ module TestCenter
           if @only_testing
             @testables ||= only_testing_to_testables_tests.keys
           else
-            @testables ||= Plist.parse_xml(@xctestrun_path).keys
+            @testables ||= Plist.parse_xml(@xctestrun_path).keys.reject do |key|
+              key == '__xctestrun_metadata__'
+            end
           end
         end
         @testables
