@@ -4,6 +4,7 @@ module Fastlane
   module Actions
     class TestsFromXctestrunAction < Action
       def self.run(params)
+        UI.verbose("Getting tests from xctestrun file at '#{params[:xctestrun]}'")
         return xctestrun_tests(params[:xctestrun])
       end
 
@@ -15,7 +16,11 @@ module Fastlane
           next if testable_name == '__xctestrun_metadata__'
 
           test_identifiers = XCTestList.tests(xctest_bundle_path(xctestrun_rootpath, xctestrun_config))
+          test_identifiers_string = test_identifiers.join("\n\t")
+          UI.verbose("Found the following tests: #{test_identifiers_string}")
           if xctestrun_config.key?('SkipTestIdentifiers')
+            skipped_tests_string = xctestrun_config['SkipTestIdentifiers'].join("\n\t")
+            UI.verbose("Removing skipped tests: #{skipped_tests_string}")
             test_identifiers.reject! { |test_identifier| xctestrun_config['SkipTestIdentifiers'].include?(test_identifier) }
           end
           tests[testable_name] = test_identifiers.map do |test_identifier|
