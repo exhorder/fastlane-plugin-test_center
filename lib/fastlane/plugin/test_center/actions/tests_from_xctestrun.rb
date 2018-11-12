@@ -15,7 +15,14 @@ module Fastlane
         xctestrun.each do |testable_name, xctestrun_config|
           next if testable_name == '__xctestrun_metadata__'
 
-          test_identifiers = XCTestList.tests(xctest_bundle_path(xctestrun_rootpath, xctestrun_config))
+          xctest_bundle_path = xctest_bundle_path(xctestrun_rootpath, xctestrun_config)
+          test_identifiers = XCTestList.tests(xctest_bundle_path)
+          xctest_binary_name = File.basename(xctest_bundle_path, '.*')
+          xctest_binary_path = File.join(xctest_bundle_path, xctest_binary_name)
+          unless File.exist?(xctest_binary_path)
+            xctest_binary_path = File.join(xctest_bundle_path, 'Contents', 'MacOS', xctest_binary_name)
+          end
+          UI.verbose("xctest binary path is: #{xctest_binary_path}")
           test_identifiers_string = test_identifiers.join("\n\t")
           UI.verbose("Found the following tests: #{test_identifiers_string}")
           if xctestrun_config.key?('SkipTestIdentifiers')
